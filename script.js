@@ -30,16 +30,50 @@ const startGame = () => {
     winningMessage.classList.remove("show-winning-message")
 }
 
-const endGame = (isDraw) => {
+const endGame = (isDraw, winner) => {
     if(isDraw){
         winningMessageTextElement.innerText = "Empate!"
     } else {
-        winningMessageTextElement.innerText = isCircleTurn 
-        ? "Circulo Venceu!" 
-        : "X Venceu!"
+        winningMessageTextElement.innerText = `${winner} Venceu!`
     }
 
     winningMessage.classList.add("show-winning-message")
+}
+
+const circleTurn = () => {
+    
+    let position = getRandomIntInclusive(0, 8)
+    let cellClass = cellElements[position].className
+    let isposition = false;
+    
+    do{
+        position = getRandomIntInclusive(0, 8)
+        cellClass = cellElements[position].className
+        for(let i=0; i<9; i++){
+
+        }
+        if (cellClass.indexOf("circle") < 0 && cellClass.indexOf("x") < 0) {
+            placeMark(cellElements[position], "circle");
+            isposition = true
+        }
+
+    }while(isposition == false);
+
+    const isWin = checkForWin("circle")
+
+    const isDraw = checkForDraw();
+
+    if(isWin){
+        endGame(false, "Circulo");
+    } else if(isDraw){
+        endGame(true, "")
+    }
+}
+
+const getRandomIntInclusive = (min, max) => {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 const checkForWin = (currentPlayer) => {
@@ -64,35 +98,29 @@ const setBoardHoverClass = () => {
     board.classList.remove("circle")
     board.classList.remove("x")
 
-    if(isCircleTurn){
+    if (isCircleTurn) {
         board.classList.add("circle")
     } else {
         board.classList.add("x")
     }
 }
 
-const swapTurns = () => {
-    isCircleTurn = !isCircleTurn;
-    setBoardHoverClass();
-}
-
 const handleClick = (e) => {
     const cell = e.target;
-
-    const classToAdd = isCircleTurn ? "circle" : "x";
+    const classToAdd = "x";
 
     placeMark(cell, classToAdd);
-
-    const isWin = checkForWin(classToAdd);
-
+    
+    const isWin = checkForWin("x");
+    
     const isDraw = checkForDraw();
 
     if(isWin){
-       endGame(false);
+        endGame(false, "X");
     } else if(isDraw) {
-        endGame(true);
+        endGame(true, "");
     } else {
-        swapTurns();
+        circleTurn();
     }
 
 }
