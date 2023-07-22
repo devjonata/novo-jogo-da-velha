@@ -31,44 +31,45 @@ const startGame = () => {
 }
 
 const endGame = (isDraw, winner) => {
-    if(isDraw){
-        winningMessageTextElement.innerText = "Empate!"
-    } else {
-        winningMessageTextElement.innerText = `${winner} Venceu!`
-    }
+  if (isDraw) {
+    winningMessageTextElement.innerText = "Empate!";
+  } else {
+    winningMessageTextElement.innerText = `${winner} Venceu!`;
+  }
 
-    winningMessage.classList.add("show-winning-message")
-}
+  winningMessage.classList.add("show-winning-message");
+};
+
 
 const circleTurn = () => {
-    
-    let position = getRandomIntInclusive(0, 8)
-    let cellClass = cellElements[position].className
-    let isposition = false;
-    
-    do{
-        position = getRandomIntInclusive(0, 8)
-        cellClass = cellElements[position].className
-        for(let i=0; i<9; i++){
+  let bestMove;
+  let bestScore = -Infinity;
 
-        }
-        if (cellClass.indexOf("circle") < 0 && cellClass.indexOf("x") < 0) {
-            placeMark(cellElements[position], "circle");
-            isposition = true
-        }
+  for (let i = 0; i < 9; i++) {
+    if (!cellElements[i].classList.contains("x") && !cellElements[i].classList.contains("circle")) {
+      cellElements[i].classList.add("circle");
+      const score = minimax(board, 0, false);
+      cellElements[i].classList.remove("circle");
 
-    }while(isposition == false);
-
-    const isWin = checkForWin("circle")
-
-    const isDraw = checkForDraw();
-
-    if(isWin){
-        endGame(false, "Circulo");
-    } else if(isDraw){
-        endGame(true, "")
+      if (score > bestScore) {
+        bestScore = score;
+        bestMove = i;
+      }
     }
-}
+  }
+
+  placeMark(cellElements[bestMove], "circle");
+
+  const isWin = checkForWin("circle");
+  const isDraw = checkForDraw();
+
+  if (isWin) {
+    endGame(false, "Círculo");
+  } else if (isDraw) {
+    endGame(true, "");
+  }
+};
+
 
 const getRandomIntInclusive = (min, max) => {
     min = Math.ceil(min);
@@ -122,8 +123,46 @@ const handleClick = (e) => {
     } else {
         circleTurn();
     }
-
 }
+
+function minimax(board, depth, maximizingPlayer) {
+  if (checkForWin("x")) {
+    return -10 + depth;
+  }
+
+  if (checkForWin("circle")) {
+    return 10 - depth;
+  }
+
+  if (checkForDraw()) {
+    return 0;
+  }
+
+  if (maximizingPlayer) {
+    let maxEval = -Infinity;
+    for (let i = 0; i < 9; i++) {
+      if (!cellElements[i].classList.contains("x") && !cellElements[i].classList.contains("circle")) {
+        cellElements[i].classList.add("circle");
+        const eval = minimax(board, depth + 1, false);
+        cellElements[i].classList.remove("circle");
+        maxEval = Math.max(maxEval, eval);
+      }
+    }
+    return maxEval;
+  } else {
+    let minEval = Infinity;
+    for (let i = 0; i < 9; i++) {
+      if (!cellElements[i].classList.contains("x") && !cellElements[i].classList.contains("circle")) {
+        cellElements[i].classList.add("x");
+        const eval = minimax(board, depth + 1, true);
+        cellElements[i].classList.remove("x");
+        minEval = Math.min(minEval, eval);
+      }
+    }
+    return minEval;
+  }
+}
+
 
 startGame();
 restartButton.addEventListener("click", startGame)
