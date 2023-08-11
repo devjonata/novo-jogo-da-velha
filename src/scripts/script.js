@@ -92,7 +92,10 @@ const checkForDraw = () => {
 }
 
 const placeMark = (cell, classToAdd) => {
-    cell.classList.add(classToAdd);
+  if (cell.classList.contains("x") || cell.classList.contains("circle")) {
+    placeMark(cell, classToAdd);
+  }
+  cell.classList.add(classToAdd);
 }
 
 const setBoardHoverClass = () => {
